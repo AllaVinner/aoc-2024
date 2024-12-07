@@ -2,5 +2,4 @@
 **/*.rs.bk
 Cargo.lock
 bin/
-# pkg/ # For github acction
 wasm-pack.log

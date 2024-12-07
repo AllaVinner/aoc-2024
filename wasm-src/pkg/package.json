@@ -1,0 +1,20 @@
+{
+  "name": "wasm-src",
+  "type": "module",
+  "collaborators": [
+    "allavinner <joel.w.ottosson@gmail.com>"
+  ],
+  "version": "0.1.0",
+  "files": [
+    "wasm_src_bg.wasm",
+    "wasm_src.js",
+    "wasm_src_bg.js",
+    "wasm_src.d.ts"
+  ],
+  "main": "wasm_src.js",
+  "types": "wasm_src.d.ts",
+  "sideEffects": [
+    "./wasm_src.js",
+    "./snippets/*"
+  ]
+}
