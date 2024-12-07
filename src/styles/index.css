@@ -114,10 +114,15 @@ input[type="file"]::file-selector-button:hover {
 
 a {
   color:#009900;
+  text-decoration: none;
 }
 
 a:hover { 
   text-shadow: 0 0 2px #00cc00, 0 0 5px #00cc00;
+}
+
+.a-selected { 
+  color:#99FF99;
 }
 
 h2 {

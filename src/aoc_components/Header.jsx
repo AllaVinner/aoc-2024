@@ -11,6 +11,11 @@ function Header() {
       <div>
         --- Learn Rust through Advent of Code ---
       </div>
+      <div>
+        <a className={"a-selected"} hhref="https://allavinner.github.io/aoc-2024/">2024</a>
+        {" "}
+        <a href="https://allavinner.github.io/aoc-2023/">2023</a>
+      </div>
     </>
   )
 }
