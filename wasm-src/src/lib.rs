@@ -1,3 +1,5 @@
+mod aoc_solver;
+mod days;
 mod utils;
 
 use wasm_bindgen::prelude::*;
@@ -23,6 +25,6 @@ pub fn test_err() -> Result<String, String> {
 }
 
 #[wasm_bindgen(js_name=solve)]
-pub fn solve(data: String, day: i32) -> Vec<String> {
-    return vec!["Hello1".to_string(), "hello_2".to_string()];
+pub fn solve(input: String, day: i32, part: i32) -> Result<String, String> {
+    return aoc_solver::solve(&input, day, part);
 }

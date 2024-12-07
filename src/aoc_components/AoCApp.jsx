@@ -8,6 +8,7 @@ import Header from "./Header"
 function AoCApp({ days }) {
   const today = 1;
   const [selectedPage, selectPage] = useState(days[today - 1].title)
+
   return (
     <>
       <div id={'dashoard'}>

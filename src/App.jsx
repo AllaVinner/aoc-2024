@@ -8,7 +8,7 @@ import Day00 from "./days/Day00";
 
 function App() {
   const days = [
-    { title: " 1", content: <Day00 /> }
+    { title: " 1", content: <Day01 /> }
   ];
   return <>
     <AoCApp days={days} />
