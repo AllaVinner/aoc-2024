@@ -5,7 +5,7 @@ import Prism from "../assets/prism.js"
 import DaySolver from '../aoc_components/DaySolver.jsx';
 
 
-function Day00() {
+function Day02() {
   const puzzle_link = "https://adventofcode.com/2024/day/2"
   const code_link = "https://github.com/AllaVinner/aoc-2024/blob/main/wasm-src/src/days/day_02.rs"
   useEffect(() => {
@@ -30,4 +30,4 @@ function Day00() {
   )
 }
 
-export default Day00
+export default Day02

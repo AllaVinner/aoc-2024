@@ -11,7 +11,6 @@ use nom::multi::{separated_list0, separated_list1};
 use nom::sequence::{separated_pair, terminated};
 use nom::IResult as NomResult;
 use std::collections::HashMap;
-use std::fs;
 
 type VerboseNomResult<'a, O> = NomResult<&'a str, O, VerboseError<&'a str>>;
 
@@ -83,7 +82,7 @@ pub fn solve(input: &str, part: i32) -> Result<String, String> {
     let res = match part {
         1 => part1(input),
         2 => part2(input),
-        i => return Err(format!("part {i} is not implemented")),
+        i => return Err(format!("day 1 part {i} is not implemented")),
     };
     match res {
         Ok(v) => Ok(v),

@@ -7,7 +7,7 @@ import DaySolver from '../aoc_components/DaySolver.jsx';
 
 function Day01() {
   const puzzle_link = "https://adventofcode.com/2024/day/1"
-  const code_link = "https://github.com/AllaVinner/aoc-2023/blob/main/wasm-src/src/days/day1.rs"
+  const code_link = "https://github.com/AllaVinner/aoc-2024/blob/main/wasm-src/src/days/day_01.rs"
   useEffect(() => {
     Prism.highlightAll();
   }, []);
@@ -16,7 +16,7 @@ function Day01() {
     <>
       <div id={'day1'}>
         <h1>
-          Day 01: Example 234
+          Day 01: Historian Hysteria
         </h1>
         <div>----------------------------------------------------</div>
         <DaySolver

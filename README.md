@@ -10,6 +10,7 @@ Currently, two official plugins are available:
 
 ## Steps
 
+- Github Pages must be enabled and set to Github actions, for the deployment to work.
 - Add `wasm-src/pkg`
     - Must remove `pkg` from `wasm-src/.gitignore`, and `wasm-src/pkg/.gitignore`.
 
