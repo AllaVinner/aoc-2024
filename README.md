@@ -8,5 +8,11 @@ Currently, two official plugins are available:
 - [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
 
+## Steps
+
+- Add `wasm-src/pkg`
+    - Must remove `pkg` from `wasm-src/.gitignore`, and `wasm-src/pkg/.gitignore`.
+
+
 
 
