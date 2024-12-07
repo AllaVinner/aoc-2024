@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import '../styles/AoC.css'
 import "../assets/prism.css"
 import Prism from "../assets/prism.js"
@@ -16,7 +16,7 @@ function Day02() {
     <>
       <div id={'day2'}>
         <h1>
-          Day 02: Example
+          Day 02: Red-Nosed Report
         </h1>
         <div>----------------------------------------------------</div>
         <DaySolver
