@@ -7,7 +7,7 @@ use nom::character::complete::{i32 as str_i32, newline, space1};
 use nom::combinator::{all_consuming, cut};
 use nom::error::convert_error;
 use nom::error::VerboseError;
-use nom::multi::{separated_list0, separated_list1};
+use nom::multi::separated_list0;
 use nom::sequence::{separated_pair, terminated};
 use nom::IResult as NomResult;
 use std::collections::HashMap;
@@ -91,5 +91,33 @@ pub fn solve(input: &str, part: i32) -> Result<String, String> {
             nom::Err::Failure(ve) => Err(convert_error(input, ve)),
             nom::Err::Incomplete(_) => Err("input is imcomplete".to_string()),
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{part1, part2};
+
+    const TEST_INPUT: &str = "\
+3   4
+4   3
+2   5
+1   3
+3   9
+3   3
+";
+
+    #[test]
+    fn test_part1() {
+        let result = part1(TEST_INPUT);
+        assert_eq!(result.is_ok(), true);
+        assert_eq!(result.unwrap(), "11")
+    }
+
+    #[test]
+    fn test_part2() {
+        let result = part2(TEST_INPUT);
+        assert_eq!(result.is_ok(), true);
+        assert_eq!(result.unwrap(), "31")
     }
 }

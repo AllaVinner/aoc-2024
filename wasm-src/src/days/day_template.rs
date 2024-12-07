@@ -38,3 +38,25 @@ pub fn solve(input: &str, part: i32) -> Result<String, String> {
         },
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{part1, part2};
+
+    const TEST_INPUT: &str = "\
+";
+
+    #[test]
+    fn test_part1() {
+        let result = part1(TEST_INPUT);
+        assert_eq!(result.is_ok(), true);
+        assert_eq!(result.unwrap(), "11")
+    }
+
+    #[test]
+    fn test_part2() {
+        let result = part2(TEST_INPUT);
+        assert_eq!(result.is_ok(), true);
+        assert_eq!(result.unwrap(), "31")
+    }
+}
