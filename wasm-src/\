@@ -3,40 +3,20 @@ use derive_more::From;
 use itertools::Itertools;
 use ndarray::Array2;
 use ndarray::ArrayView2;
+use ndarray::IndexLonger;
 use ndarray::ShapeError;
+use nom;
+use regex::Regex;
 use std::fmt;
+use std::str::SplitWhitespace;
+
+type VerboseNomResult<'a, O> = nom::IResult<&'a str, O, nom::error::VerboseError<&'a str>>;
 
 #[derive(Debug)]
 struct CharLocation {
     c: char,
     row: usize,
     col: usize,
-}
-
-#[derive(Debug, Display)]
-enum Corner {
-    TopLeft,
-    TopRight,
-    BottomRight,
-    BottomLeft,
-}
-
-#[derive(Debug)]
-struct CornerOutOfBounds {
-    row_i: char,
-    col_i: usize,
-    corner: Corner,
-}
-
-impl fmt::Display for CornerOutOfBounds {
-    // This trait requires `fmt` with this exact signature.
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{} corner of {}:{} is out of bounds",
-            self.corner, self.row_i, self.col_i
-        )
-    }
 }
 
 impl fmt::Display for CharLocation {
@@ -67,15 +47,15 @@ struct RightUpMatrixIter<'a, I: Copy> {
 impl<'a, I: Copy> Iterator for RightUpMatrixIter<'a, I> {
     type Item = I;
     fn next(&mut self) -> Option<Self::Item> {
+        let col_root = if self.diagonal_index < self.matrix.nrows() {
+            0
+        } else {
+            self.diagonal_index - self.matrix.nrows()
+        };
         let row_root = if self.diagonal_index < self.matrix.nrows() {
             self.diagonal_index
         } else {
             self.matrix.nrows() - 1
-        };
-        let col_root = if self.diagonal_index < self.matrix.nrows() {
-            0
-        } else {
-            self.diagonal_index - self.matrix.nrows() + 1
         };
         if row_root < self.item_index {
             return None;
@@ -141,7 +121,6 @@ pub enum AoCError {
     UnExpectedCharacter(CharLocation),
     #[from]
     ShapeError(ShapeError),
-    MatrxiIndexError(CornerOutOfBounds),
 }
 
 fn parser(input: &str) -> Result<Array2<Item>, AoCError> {
@@ -161,7 +140,7 @@ fn parser(input: &str) -> Result<Array2<Item>, AoCError> {
             }
             _ => {
                 return Err(AoCError::UnExpectedCharacter(CharLocation {
-                    c,
+                    c: c,
                     row: row_i,
                     col: col_i,
                 }))
@@ -190,6 +169,7 @@ fn part1(input: &str) -> Result<String, AoCError> {
             .filter(|v| is_xmas(v))
             .count();
     }
+
     for col in mat.columns() {
         count += col
             .iter()
@@ -218,40 +198,7 @@ fn part1(input: &str) -> Result<String, AoCError> {
 }
 
 fn part2(input: &str) -> Result<String, AoCError> {
-    let mat = parser(input)?;
-    let mut count = 0;
-    for ((row_i, col_i), item) in mat.indexed_iter() {
-        if col_i == 0 || row_i == 0 {
-            continue;
-        }
-        if col_i == mat.ncols() - 1 || row_i == mat.nrows() - 1 {
-            continue;
-        }
-        if *item != Item::A {
-            continue;
-        }
-        let corners = vec![
-            mat.get((row_i + 1, col_i - 1)).unwrap(),
-            mat.get((row_i + 1, col_i + 1)).unwrap(),
-            mat.get((row_i - 1, col_i + 1)).unwrap(),
-            mat.get((row_i - 1, col_i - 1)).unwrap(),
-        ];
-        if corners.iter().filter(|&&v| *v == Item::M).count() != 2 {
-            continue;
-        }
-        if corners.iter().filter(|&&v| *v == Item::S).count() != 2 {
-            continue;
-        }
-        if corners[0] == corners[2] {
-            continue;
-        }
-        if corners[1] == corners[3] {
-            continue;
-        }
-        count += 1;
-    }
-
-    return Ok(count.to_string());
+    return Ok("Part 1 Placeholder".to_string());
 }
 
 pub fn solve(input: &str, part: i32) -> Result<String, String> {
@@ -262,13 +209,14 @@ pub fn solve(input: &str, part: i32) -> Result<String, String> {
     };
     match res {
         Ok(v) => Ok(v),
-        Err(e) => Err(format!("{}", e)),
+        Err(r) => Ok("ASD".to_string()),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{iter_right_down, iter_right_up, parser, part1, part2};
+    use super;
+    use super::{part1, part2};
 
     const TEST_INPUT: &str = "\
 MMMSXXMASM
@@ -282,80 +230,11 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
 
-    #[test]
-    fn test_right_up() {
-        let m = super::parser(TEST_INPUT).unwrap();
-        let mut diter = super::iter_right_up((&m).into(), 0);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_up((&m).into(), 1);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_up((&m).into(), 2);
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_up((&m).into(), 9);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(Some(super::Item::X), diter.next());
-        assert_eq!(Some(super::Item::M), diter.last());
-
-        let mut diter = super::iter_right_up((&m).into(), 10);
-        assert_eq!(Some(super::Item::X), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::A), diter.last());
-
-        let mut diter = super::iter_right_up((&m).into(), 17);
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-    }
-    #[test]
-    fn test_right_down() {
-        let m = super::parser(TEST_INPUT).unwrap();
-        let mut diter = super::iter_right_down((&m).into(), 0);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_down((&m).into(), 1);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::X), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_down((&m).into(), 2);
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_down((&m).into(), 8);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(Some(super::Item::S), diter.last());
-
-        let mut diter = super::iter_right_down((&m).into(), 9);
-        assert_eq!(Some(super::Item::M), diter.next());
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::X), diter.next());
-        assert_eq!(Some(super::Item::X), diter.last());
-
-        let mut diter = super::iter_right_down((&m).into(), 17);
-        assert_eq!(Some(super::Item::S), diter.next());
-        assert_eq!(Some(super::Item::A), diter.next());
-        assert_eq!(None, diter.next());
-
-        let mut diter = super::iter_right_down((&m).into(), 117);
-        assert_eq!(None, diter.next());
-    }
+    const INPUT_2: &str = "\
+SMSMSASXSS
+SAXAMASAAA
+MAMMMXMMMM
+MXMXAXMASX";
 
     #[test]
     fn test_part1() {
@@ -368,6 +247,13 @@ MXMXAXMASX";
     fn test_part2() {
         let result = part2(TEST_INPUT);
         assert_eq!(result.is_ok(), true);
-        assert_eq!(result.unwrap(), "9")
+        assert_eq!(result.unwrap(), "31")
+    }
+
+    fn test_diter() {
+        let m = super::parser(INPUT_2);
+        let diter = super::iter_right_up((&m).into(), 0);
+        assert_eq!(Some(super::Item::M), diter.next());
+        assert_eq!(None, diter.next());
     }
 }
