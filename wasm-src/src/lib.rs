@@ -1,6 +1,5 @@
 mod aoc_solver;
 mod days;
-mod utils;
 
 use wasm_bindgen::prelude::*;
 

@@ -3,7 +3,6 @@ use derive_more::From;
 use itertools::Itertools;
 use nom;
 use nom::bytes::complete::tag;
-use nom::combinator::cut;
 
 type VerboseNomResult<'a, O> = nom::IResult<&'a str, O, nom::error::VerboseError<&'a str>>;
 type Level = i32;
@@ -21,7 +20,7 @@ fn nom_parser(input: &str) -> VerboseNomResult<Vec<Report>> {
             nom::character::complete::newline,
             nom::multi::separated_list1(
                 nom::character::complete::space1,
-                cut(nom::character::complete::i32),
+                nom::character::complete::i32,
             ),
         ),
         nom::branch::alt((tag("\n\n"), tag("\n"), tag(""))),
@@ -59,7 +58,7 @@ fn is_safe_2(report: &[Level]) -> bool {
             .tuple_windows()
             .map(|(v1, v2)| v2 - v1)
             .collect();
-        if (diffs.iter().all(|diff| *diff > 0) || diffs.iter().all(|diff| *diff < 0)) {
+        if diffs.iter().all(|diff| *diff > 0) || diffs.iter().all(|diff| *diff < 0) {
             if diffs.iter().all(|diff| 1 <= diff.abs() && diff.abs() <= 3) {
                 return true;
             }
