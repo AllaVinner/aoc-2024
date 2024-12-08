@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import '../styles/Aoc.css'
-
+import '../styles/AoC.css'
 
 
 function Day404() {
