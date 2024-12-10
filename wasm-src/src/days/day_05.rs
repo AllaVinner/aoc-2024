@@ -1,3 +1,5 @@
+use std::cmp::{max, min};
+
 use derive_more::derive::Display;
 use derive_more::From;
 use nom;
@@ -39,7 +41,6 @@ fn part1(input: &str) -> Result<String, AoCError> {
     for updates in update_lists.iter() {
         let mut is_ordered = true;
         for rule in rules.iter() {
-            println!("rule check {:?}", rule);
             let pre = match updates.iter().position(|v| *v == rule.0) {
                 Some(p) => p,
                 None => continue,
@@ -48,7 +49,6 @@ fn part1(input: &str) -> Result<String, AoCError> {
                 Some(p) => p,
                 None => continue,
             };
-            println!("pre psot {}:{}", pre, post);
             if pre > post {
                 is_ordered = false;
                 break;
@@ -62,7 +62,49 @@ fn part1(input: &str) -> Result<String, AoCError> {
 }
 
 fn part2(input: &str) -> Result<String, AoCError> {
-    return Ok("Part 5 Placeholder".to_string());
+    let (_, (rules, update_lists)) = nom_parser(input)?;
+    let mut score = 0;
+    for updates in update_lists.iter() {
+        let mut is_ordered = true;
+        for rule in rules.iter() {
+            let pre = match updates.iter().position(|v| *v == rule.0) {
+                Some(p) => p,
+                None => continue,
+            };
+            let post = match updates.iter().position(|v| *v == rule.1) {
+                Some(p) => p,
+                None => continue,
+            };
+            if pre > post {
+                is_ordered = false;
+                break;
+            }
+        }
+        if is_ordered {
+            continue;
+        }
+        let mut ordered_update: Vec<i32> = vec![];
+        for update in updates.iter() {
+            let mut start = 0;
+            let mut end = ordered_update.len();
+            for (pre, post) in rules.iter() {
+                if update == pre {
+                    end = match ordered_update.iter().position(|v| v == post) {
+                        Some(post_pos) => min(post_pos, end),
+                        None => end,
+                    };
+                } else if update == post {
+                    start = match ordered_update.iter().position(|v| v == pre) {
+                        Some(pre_pos) => max(pre_pos + 1, start),
+                        None => start,
+                    };
+                }
+            }
+            ordered_update.insert(start, *update);
+        }
+        score += ordered_update.get(ordered_update.len() / 2).unwrap()
+    }
+    return Ok(score.to_string());
 }
 
 pub fn solve(input: &str, part: i32) -> Result<String, String> {
@@ -122,6 +164,6 @@ mod tests {
     fn test_part2() {
         let result = part2(TEST_INPUT);
         assert_eq!(result.is_ok(), true);
-        assert_eq!(result.unwrap(), "31")
+        assert_eq!(result.unwrap(), "123")
     }
 }
