@@ -8,6 +8,7 @@ pub fn solve(input: &str, day: i32, part: i32) -> Result<String, String> {
         4 => days::day_04::solve(input, part),
         5 => days::day_05::solve(input, part),
         6 => days::day_06::solve(input, part),
+        7 => days::day_07::solve(input, part),
         i => Err(format!("day {i} is not implemented.")),
     }
 }

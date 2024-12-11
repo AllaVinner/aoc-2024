@@ -5,22 +5,22 @@ import Prism from "../assets/prism.js"
 import DaySolver from '../aoc_components/DaySolver.jsx';
 
 
-function Day06() {
-  const puzzle_link = "https://adventofcode.com/2024/day/6"
-  const code_link = "https://github.com/AllaVinner/aoc-2024/blob/main/wasm-src/src/days/day_06.rs"
+function Day07() {
+  const puzzle_link = "https://adventofcode.com/2024/day/7"
+  const code_link = "https://github.com/AllaVinner/aoc-2024/blob/main/wasm-src/src/days/day_07.rs"
   useEffect(() => {
     Prism.highlightAll();
   }, []);
 
   return (
     <>
-      <div id={'day6'}>
+      <div id={'day7'}>
         <h1>
-          Day 06: Guard Gallivant
+          Day 07: Guard Gallivant
         </h1>
         <div>----------------------------------------------------</div>
         <DaySolver
-          day={6}
+          day={7}
           aoc_puzzle_link={puzzle_link}
           aoc_code_link={code_link}
         />
@@ -30,4 +30,4 @@ function Day06() {
   )
 }
 
-export default Day06
+export default Day07
