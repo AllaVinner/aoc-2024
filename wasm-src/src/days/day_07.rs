@@ -69,21 +69,12 @@ fn part1(input: &str) -> Result<String, AoCError> {
     let mut calibration = 0;
     for (target, numbers) in equations {
         for ops in Op::vec_iter((numbers.len() - 1) as u32) {
-            let mut eq = String::new();
-            eq.push_str(&target.to_string());
-            eq.push_str(": ");
             let mut num_iter = numbers.iter();
             let mut res = match num_iter.next() {
                 Some(first) => *first,
                 None => continue,
             };
-            eq.push_str(&res.to_string());
             for (op, num) in ops.iter().zip(num_iter) {
-                let s = match op {
-                    Op::Add => format!(" + {num}"),
-                    Op::Mul => format!(" * {num}"),
-                };
-                eq.push_str(&s);
                 res = match op {
                     Op::Add => res + num,
                     Op::Mul => res * num,
@@ -91,7 +82,6 @@ fn part1(input: &str) -> Result<String, AoCError> {
             }
             if target == res {
                 calibration += target;
-                println!("{}", eq);
                 break;
             }
         }
@@ -99,8 +89,73 @@ fn part1(input: &str) -> Result<String, AoCError> {
     return Ok(calibration.to_string());
 }
 
+#[derive(PartialEq, Eq, Debug, Display)]
+enum Op3 {
+    Add,
+    Mul,
+    Con,
+}
+
+impl Op3 {
+    fn vec_iter(num_ops: u32) -> Op3Iter {
+        Op3Iter { i: 0, num_ops }
+    }
+}
+
+struct Op3Iter {
+    i: u64,
+    num_ops: u32,
+}
+
+impl Iterator for Op3Iter {
+    type Item = Vec<Op3>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.i >= u32::pow(3, self.num_ops) as u64 {
+            return None;
+        }
+        let mut ops = Vec::new();
+        for op_i in 0..self.num_ops {
+            let op = match (self.i / u32::pow(3, op_i) as u64) % 3 {
+                0 => Op3::Add,
+                1 => Op3::Mul,
+                2 => Op3::Con,
+                r => panic!("unreachable "),
+            };
+            ops.push(op);
+        }
+        self.i += 1;
+        return Some(ops);
+    }
+}
+
 fn part2(input: &str) -> Result<String, AoCError> {
-    return Ok("Part 1 Placeholder".to_string());
+    let (_, equations) = nom_parser(input)?;
+    let mut calibration = 0;
+    for (target, numbers) in equations {
+        for ops in Op3::vec_iter((numbers.len() - 1) as u32) {
+            let mut num_iter = numbers.iter();
+            let mut res = match num_iter.next() {
+                Some(first) => *first,
+                None => continue,
+            };
+            for (op, num) in ops.iter().zip(num_iter) {
+                res = match op {
+                    Op3::Add => res + num,
+                    Op3::Mul => res * num,
+                    Op3::Con => 10u32.pow((*num as f64).log10() as u32 + 1) as u64 * res + num,
+                };
+                if res > target {
+                    break;
+                }
+            }
+            if target == res {
+                calibration += target;
+                break;
+            }
+        }
+    }
+    return Ok(calibration.to_string());
 }
 
 pub fn solve(input: &str, part: i32) -> Result<String, String> {
@@ -145,7 +200,7 @@ mod tests {
     fn test_part2() {
         let result = part2(TEST_INPUT);
         assert_eq!(result.is_ok(), true);
-        assert_eq!(result.unwrap(), "31")
+        assert_eq!(result.unwrap(), "11387")
     }
 }
 #[test]
