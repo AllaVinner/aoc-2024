@@ -1,6 +1,7 @@
 use derive_more::derive::Display;
 use derive_more::From;
 use nom::bytes::complete::tag;
+use nom::combinator::all_consuming;
 use nom::multi::separated_list1;
 use nom::sequence::separated_pair;
 use nom::{self, character};
@@ -14,26 +15,88 @@ pub enum AoCError<'a> {
     Parsing(nom::Err<nom::error::VerboseError<&'a str>>),
 }
 
-fn nom_parser(input: &str) -> VerboseNomResult<Vec<(i32, Vec<i32>)>> {
-    separated_list1(
+fn nom_parser(input: &str) -> VerboseNomResult<Vec<(u64, Vec<u64>)>> {
+    all_consuming(separated_list1(
         tag("\n"),
         separated_pair(
-            nom::character::complete::i32,
+            nom::character::complete::u64,
             tag(": "),
-            separated_list1(tag(" "), nom::character::complete::i32),
+            separated_list1(tag(" "), nom::character::complete::u64),
         ),
-    )(input)
+    ))(input)
 }
 
+#[derive(PartialEq, Eq, Debug, Display)]
 enum Op {
     Add,
     Mul,
 }
 
+impl Op {
+    fn vec_iter(num_ops: u32) -> OpIter {
+        OpIter { i: 0, num_ops }
+    }
+}
+
+struct OpIter {
+    i: u64,
+    num_ops: u32,
+}
+
+impl Iterator for OpIter {
+    type Item = Vec<Op>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.i >= u32::pow(2, self.num_ops) as u64 {
+            return None;
+        }
+        let mut ops = Vec::new();
+        for op_i in 0..self.num_ops {
+            let op = match (self.i / u32::pow(2, op_i) as u64) % 2 {
+                0 => Op::Add,
+                1 => Op::Mul,
+                r => panic!("unreachable "),
+            };
+            ops.push(op);
+        }
+        self.i += 1;
+        return Some(ops);
+    }
+}
+
 fn part1(input: &str) -> Result<String, AoCError> {
     let (_, equations) = nom_parser(input)?;
-    for (target, numbers) in equations {}
-    return Ok("Part 1 Placeholder".to_string());
+    let mut calibration = 0;
+    for (target, numbers) in equations {
+        for ops in Op::vec_iter((numbers.len() - 1) as u32) {
+            let mut eq = String::new();
+            eq.push_str(&target.to_string());
+            eq.push_str(": ");
+            let mut num_iter = numbers.iter();
+            let mut res = match num_iter.next() {
+                Some(first) => *first,
+                None => continue,
+            };
+            eq.push_str(&res.to_string());
+            for (op, num) in ops.iter().zip(num_iter) {
+                let s = match op {
+                    Op::Add => format!(" + {num}"),
+                    Op::Mul => format!(" * {num}"),
+                };
+                eq.push_str(&s);
+                res = match op {
+                    Op::Add => res + num,
+                    Op::Mul => res * num,
+                };
+            }
+            if target == res {
+                calibration += target;
+                println!("{}", eq);
+                break;
+            }
+        }
+    }
+    return Ok(calibration.to_string());
 }
 
 fn part2(input: &str) -> Result<String, AoCError> {
@@ -75,7 +138,7 @@ mod tests {
     fn test_part1() {
         let result = part1(TEST_INPUT);
         assert_eq!(result.is_ok(), true);
-        assert_eq!(result.unwrap(), "11")
+        assert_eq!(result.unwrap(), "3749")
     }
 
     #[test]
@@ -84,4 +147,13 @@ mod tests {
         assert_eq!(result.is_ok(), true);
         assert_eq!(result.unwrap(), "31")
     }
+}
+#[test]
+fn test_op_iter() {
+    let mut op_iter = Op::vec_iter(3);
+    assert_eq!(op_iter.next(), Some(vec![Op::Add, Op::Add, Op::Add]));
+    assert_eq!(op_iter.next(), Some(vec![Op::Mul, Op::Add, Op::Add]));
+    assert_eq!(op_iter.next(), Some(vec![Op::Add, Op::Mul, Op::Add]));
+    assert_eq!(op_iter.next(), Some(vec![Op::Mul, Op::Mul, Op::Add]));
+    assert_eq!(op_iter.count(), 2_usize.pow(3) - 4);
 }
