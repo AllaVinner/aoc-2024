@@ -61,7 +61,7 @@ function DaySolver({ day, aoc_puzzle_link, aoc_code_link }) {
   }
 
   return (
-    <>
+    <div>
       <InputBox
         inputContent={inputContent}
         setInputContent={setInputContent}
@@ -73,7 +73,7 @@ function DaySolver({ day, aoc_puzzle_link, aoc_code_link }) {
         {' '}
         <a href={aoc_code_link}>solution</a>
       </p > <br />
-    </>
+    </div>
   )
 }
 

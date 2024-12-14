@@ -9,6 +9,7 @@ import Day04 from "./days/Day04";
 import Day05 from "./days/Day05";
 import Day06 from "./days/Day06";
 import Day07 from "./days/Day07";
+import Day08 from "./days/Day08";
 import Day00 from "./days/Day00";
 
 
@@ -20,7 +21,8 @@ function App() {
     { title: " 4", content: <Day04 /> },
     { title: " 5", content: <Day05 /> },
     { title: " 6", content: <Day06 /> },
-    { title: " 7", content: <Day07 /> }
+    { title: " 7", content: <Day07 /> },
+    { title: " 8", content: <Day08 /> }
   ];
   return <>
     <AoCApp days={days} />
