@@ -63,6 +63,29 @@ fn get_antinodes(a1: Pos, a2: Pos, board_size: Pos) -> Option<Pos> {
     a1_close
 }
 
+fn get_resonant_antinodes(a1: Pos, a2: Pos, board_size: Pos) -> Vec<Pos> {
+    // firs
+    let mut n1 = a1;
+    let mut n2 = a2;
+    let mut antinodes: Vec<Pos> = vec![n1, n2];
+    loop {
+        let n3 = if 2 * n2.0 < n1.0 || 2 * n2.1 < n1.1 {
+            break;
+        } else {
+            let a = (2 * n2.0 - n1.0, 2 * n2.1 - n1.1);
+            if a.0 >= board_size.0 || a.1 >= board_size.1 {
+                break;
+            } else {
+                a
+            }
+        };
+        antinodes.push(n3);
+        n1 = n2.clone();
+        n2 = n3.clone();
+    }
+    antinodes
+}
+
 fn explain_part1(input: &str) -> Result<String, AoCError> {
     let (antenna_map, (board_size)) = parse(input)?;
     let mut s = String::new();
@@ -76,7 +99,7 @@ fn explain_part1(input: &str) -> Result<String, AoCError> {
         for a1_pos in antenna_pos.iter() {
             for a2_pos in antenna_pos.iter() {
                 if a1_pos == a2_pos {
-                    break;
+                    continue;
                 }
                 if let Some(pos) = get_antinodes(*a1_pos, *a2_pos, board_size) {
                     occupied_pos.insert(pos);
@@ -88,8 +111,8 @@ fn explain_part1(input: &str) -> Result<String, AoCError> {
         }
     }
     let mut num = 0;
-    for row_i in 0..=board_size.0 {
-        for col_i in 0..=board_size.1 {
+    for row_i in 0..board_size.0 {
+        for col_i in 0..board_size.1 {
             if occupied_pos.contains(&(row_i, col_i)) {
                 s.push_str("#");
                 num += 1;
@@ -103,6 +126,45 @@ fn explain_part1(input: &str) -> Result<String, AoCError> {
     Ok(s)
 }
 
+fn explain_part2(input: &str) -> Result<String, AoCError> {
+    let (antenna_map, (board_size)) = parse(input)?;
+    let mut s = String::new();
+    s.push_str(&format!(
+        "Board Size: ({}, {})\n",
+        board_size.0, board_size.1
+    ));
+
+    let mut occupied_pos: HashSet<Pos> = HashSet::new();
+    for (antenna_name, antenna_pos) in antenna_map.iter() {
+        for a1_pos in antenna_pos.iter() {
+            for a2_pos in antenna_pos.iter() {
+                if a1_pos == a2_pos {
+                    continue;
+                }
+                for antinode in get_resonant_antinodes(*a1_pos, *a2_pos, board_size).iter() {
+                    occupied_pos.insert(*antinode);
+                }
+                for antinode in get_resonant_antinodes(*a2_pos, *a1_pos, board_size).iter() {
+                    occupied_pos.insert(*antinode);
+                }
+            }
+        }
+    }
+    let mut num = 0;
+    for row_i in 0..board_size.0 {
+        for col_i in 0..board_size.1 {
+            if occupied_pos.contains(&(row_i, col_i)) {
+                s.push_str("#");
+                num += 1;
+            } else {
+                s.push_str(".");
+            }
+        }
+        s.push_str("\n")
+    }
+    s.push_str(&format!("Num matckes: {}", num));
+    Ok(s)
+}
 fn part1(input: &str) -> Result<String, AoCError> {
     let (antenna_map, (board_size)) = parse(input)?;
     let mut occupied_pos: HashSet<Pos> = HashSet::new();
@@ -125,13 +187,30 @@ fn part1(input: &str) -> Result<String, AoCError> {
 }
 
 fn part2(input: &str) -> Result<String, AoCError> {
-    return Ok("Part 1 Placeholder".to_string());
+    let (antenna_map, (board_size)) = parse(input)?;
+    let mut occupied_pos: HashSet<Pos> = HashSet::new();
+    for (antenna_name, antenna_pos) in antenna_map.iter() {
+        for a1_pos in antenna_pos.iter() {
+            for a2_pos in antenna_pos.iter() {
+                if a1_pos == a2_pos {
+                    break;
+                }
+                for antinode in get_resonant_antinodes(*a1_pos, *a2_pos, board_size).iter() {
+                    occupied_pos.insert(*antinode);
+                }
+                for antinode in get_resonant_antinodes(*a2_pos, *a1_pos, board_size).iter() {
+                    occupied_pos.insert(*antinode);
+                }
+            }
+        }
+    }
+    return Ok(occupied_pos.len().to_string());
 }
 
 pub fn solve(input: &str, part: i32) -> Result<String, String> {
     let res = match part {
-        1 => explain_part1(input),
-        2 => part2(input),
+        1 => part1(input),
+        2 => explain_part2(input),
         i => return Err(format!("day 8 part {i} is not implemented")),
     };
     match res {
@@ -162,6 +241,9 @@ mod tests {
 ............
 ............";
 
+    const BASIC_INPUT: &str = "\
+##..";
+
     #[test]
     fn test_part1() {
         let result = part1(TEST_INPUT);
@@ -173,6 +255,13 @@ mod tests {
     fn test_part2() {
         let result = part2(TEST_INPUT);
         assert_eq!(result.is_ok(), true);
-        assert_eq!(result.unwrap(), "31")
+        assert_eq!(result.unwrap(), "34")
+    }
+
+    #[test]
+    fn test_part_2_basic() {
+        let result = part2(BASIC_INPUT);
+        assert_eq!(result.is_ok(), true);
+        assert_eq!(result.unwrap(), "4")
     }
 }
